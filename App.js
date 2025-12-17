@@ -6,6 +6,10 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AppBar from './screens/AppBar';
 import HomeStack from './navigation/Homestack';
 import SettingsScreen from './screens/SettingsScreen';
+import AuthProvider, { AuthContext } from "./context/AuthContext";
+import AppDrawer from "./navigation/AppDrawer";
+import LoginScreen from "./screens/LoginScreen";
+import { useContext } from "react";
 
 const Tab = createBottomTabNavigator();
 
@@ -47,4 +51,8 @@ export default function App() {
       </SafeAreaView>
     </SafeAreaProvider>
   );
+}
+function RootNavigator() {
+const { user } = useContext(AuthContext);
+return user ? <AppDrawer /> : <LoginScreen />;
 }
