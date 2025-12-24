@@ -3,16 +3,25 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import AppBar from './screens/AppBar';
+import AppBar from './components/AppBar';
 import HomeStack from './navigation/Homestack';
 import SettingsScreen from './screens/SettingsScreen';
-import AuthProvider, { AuthContext } from "./context/AuthContext";
+import AuthProvider, { AuthContext } from "./context/AuthContext"; 
 import AppDrawer from "./navigation/AppDrawer";
 import LoginScreen from "./screens/LoginScreen";
 import { useContext } from "react";
+import { Provider } from "react-redux"; 
+import { store } from "./store/store"; 
+
+
 
 const Tab = createBottomTabNavigator();
 
+function RootNavigator() { 
+ const { user } = useContext(AuthContext); 
+ 
+ return user ? <AppDrawer /> : <LoginScreen />; 
+} 
 export default function App() {
   return (
     <SafeAreaProvider>
@@ -51,8 +60,4 @@ export default function App() {
       </SafeAreaView>
     </SafeAreaProvider>
   );
-}
-function RootNavigator() {
-const { user } = useContext(AuthContext);
-return user ? <AppDrawer /> : <LoginScreen />;
 }
