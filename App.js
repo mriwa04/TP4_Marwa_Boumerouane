@@ -1,63 +1,44 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import AppBar from './components/AppBar';
-import HomeStack from './navigation/Homestack';
-import SettingsScreen from './screens/SettingsScreen';
-import AuthProvider, { AuthContext } from "./context/AuthContext"; 
-import AppDrawer from "./navigation/AppDrawer";
-import LoginScreen from "./screens/LoginScreen";
-import { useContext } from "react";
-import { Provider } from "react-redux"; 
-import { store } from "./store/store"; 
-
-
-
-const Tab = createBottomTabNavigator();
-
-function RootNavigator() { 
- const { user } = useContext(AuthContext); 
- 
- return user ? <AppDrawer /> : <LoginScreen />; 
-} 
+import { useEffect, useState, useContext } from "react";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
+import { initDB } from "./services/database";
+import { ThemeProvider, ThemeContext } from "./context/ThemeContext";
+import TodoListOfflineScreen from "./screens/TodoListOfflineScreen";
+function MainApp() {
+  const { theme } = useContext(ThemeContext);
+return (
+   <View
+     style={[
+       styles.container,
+       theme === "dark" ? styles.dark : styles.light,
+]} >
+     <TodoListOfflineScreen />
+   </View>
+); }
 export default function App() {
-  return (
-    <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-        <NavigationContainer>
-          <AppBar />
-          <Tab.Navigator
-            screenOptions={{
-              headerShown: false,
-              tabBarActiveTintColor: 'blue',
-              tabBarInactiveTintColor: 'gray',
-              tabBarStyle: { backgroundColor: '#f0f0f0' },
-              tabBarLabelStyle: { fontSize: 14 },
-            }}
-          >
-            <Tab.Screen
-              name="Maison"
-              component={HomeStack}
-              options={{
-                tabBarIcon: ({ color, size }) => (
-                  <Ionicons name="home" size={size} color={color} />
-                ),
-              }}
-            />
-            <Tab.Screen
-              name="Paramètres"
-              component={SettingsScreen}
-              options={{
-                tabBarIcon: ({ color, size }) => (
-                  <Ionicons name="settings" size={size} color={color} />
-                ),
-              }}
-            />
-          </Tab.Navigator>
-        </NavigationContainer>
-      </SafeAreaView>
-    </SafeAreaProvider>
-  );
+ const [dbReady, setDbReady] = useState(false);
+ useEffect(() => {
+   const prepareDb = async () => {
+     await initDB();   // attendre SQLite
+     setDbReady(true); // OK pour afficher l’app
+   };
+   prepareDb();
+ }, []);
+ if (!dbReady) {
+   return <ActivityIndicator size="large" />;
 }
+ return (
+   <ThemeProvider>
+     <MainApp />
+   </ThemeProvider>
+); }
+const styles = StyleSheet.create({
+ container: {
+flex: 1,
+   paddingTop: 40,
+ },
+ light: {
+   backgroundColor: "#ffffff",
+},
+dark: {
+  backgroundColor: "#121212",
+}, });
